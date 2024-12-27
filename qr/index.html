@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="LibreOffice Pay" />
+  <meta property="og:description" content="一個使用 HTML 製作的 LibreOffice 支付工具" />
+  <meta property="og:image" content="https://en.wikipedia.org/wiki/LibreOffice#/media/File:LibreOffice_7.5_Impress_Icon.svg" />
+  <meta property="og:url" content="https://pay.superlily.dev/qr" />
+  <title>收款碼</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+  <style>
+
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #e0f7fa;
+      margin: 0;
+      flex-direction: column;
+      font-family: "Ubuntu", Arial, Helvetica, sans-serif;
+      padding: 20px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    h1 {
+      color: #00796b;
+      align-self: center;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    select {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #4caf50;
+        color: white;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    select:hover {
+        background-color: #45a049;
+    }
+
+    select:focus {
+        outline: none; 
+        border-color: #388e3c;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold; 
+    }
+
+    input {
+      width: 100%;
+      padding: 10px; 
+      box-sizing: border-box;
+      border: 1px solid #ccc; 
+      border-radius: 5px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      border-color: #00796b;
+      outline: none;
+    }
+
+    #qrcode {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    canvas {
+      width: 70%;
+      margin: 0 15%;
+      border-radius: 3%;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      color: white;
+      background-color: #00796b; 
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.3s; 
+    }
+
+    button:hover {
+      background-color: #004d40; 
+    }
+
+  </style>
+</head>
+  <body>
+    <div class="container">
+      <h1>收款碼</h1>
+      <div class="input-group">
+        <label for="amount">金額:</label>
+        <input type="text" id="amount" placeholder="新臺幣整數">
+      </div>
+      <div class="input-group">
+        <label for="bankCode">轉入銀行:</label>
+        <select id="bankCode"></select>
+      </div>
+      <div class="input-group">
+        <label for="accountNumber">轉入帳號：</label>
+        <input type="text" id="accountNumber" placeholder="最多 16 碼">
+      </div>
+      <button id="generate">生成收款碼</button>
+      <div id="qrcode"></div>
+    </div>
+
+    <script>
+      $(document).ready(function() {
+        $.get('https://raw.githubusercontent.com/s950449/TWPayQRCodeGenerator/refs/heads/main/data/BIC.csv', function(data) {
+          const lines = data.split('\n');
+          lines.forEach((line, index) => {
+            if (index > 0 && line.trim() !== '') {
+              const [bic, name] = line.split(',');
+              $('#bankCode').append(`<option value="${bic}">${name} (${bic})</option>`);
+            }
+          });
+        });
+
+        $('#generate').click(function() {
+          const amount = $('#amount').val();
+          const bankCode = $('#bankCode').val();
+          let accountNumber = $('#accountNumber').val();
+          
+          while (accountNumber.length < 16) {
+            accountNumber = '0' + accountNumber;
+          }
+          
+          const qrData = `TWQRP://superlily/158/02/V1?D1=${amount}00&D5=${bankCode}&D6=${accountNumber}`;
+          
+          $('#qrcode').empty().qrcode({text:qrData});
+
+        });
+      });
+    </script>
+  </body>
+</html>
