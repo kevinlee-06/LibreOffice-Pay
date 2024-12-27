@@ -159,7 +159,7 @@
             accountNumber = '0' + accountNumber;
           }
           
-          const qrData = `TWQRP://superlily/158/02/V1?D1=${amount}00&D5=${bankCode}&D6=${accountNumber}`;
+          const qrData = `TWQRP://superlily/158/02/V1?M1=${amount}00&D5=${bankCode}&D6=${accountNumber}`;
           
           $('#qrcode').empty().qrcode({text:qrData});
 
